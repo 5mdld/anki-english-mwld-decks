@@ -242,6 +242,7 @@ article.card {
   border: none !important;
   border-radius: 0;
   cursor: pointer;
+  touch-action: manipulation;
   color: var(--svg-path);
   transition: color 0.2s ease;
   flex-shrink: 0;
@@ -492,7 +493,6 @@ article.card {
     margin-right: var(--spacing-sm);
   }
 
-  /* Scale with the text size while retaining a minimum 48px touch target. */
   .pronunciation-audio .audio-button svg,
   .pronunciation-audio .translate-button svg {
     width: 1.625em !important;
@@ -500,7 +500,6 @@ article.card {
     flex-shrink: 0;
   }
 
-  /* Together with the 12px list gap, keep neighboring 48px targets apart. */
   .example-sentence {
     min-height: 36px;
   }
@@ -523,7 +522,6 @@ article.card {
     padding-right: 0.0825em;
   }
 
-  /* Preserve the original 90% icon in a 1.65em button, anchored to the first line. */
   .example-audio .audio-button svg {
     width: 1.485em !important;
     height: 1.485em !important;
@@ -551,19 +549,16 @@ article.card {
 
 }
 
-/* Mobile hosts already render edge-to-edge, so keep the card flush to the viewport. */
 .ios article.card,
 .android article.card {
   border-radius: 0;
   margin: 0;
 }
 
-/* Reserve space for the home indicator so content is not obscured on iOS. */
 .ios article.card {
   padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
 }
 
-/* AnkiWeb injects its own wrapper styles, so normalize them back to the deck layout. */
 #quiz {
   --canvas: #fff;
 }

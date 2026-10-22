@@ -24,7 +24,7 @@
     </span>
     {{/Audio}}
 
-    <button id="translateBtn" class="translate-button" title="Click to translate">
+    <button id="translateBtn" type="button" class="translate-button" title="Click to translate">
       <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12.913 17H20.087M12.913 17L11 21M12.913 17L15.7783 11.009C16.0092 10.5263 16.1246 10.2849 16.2826 10.2086C16.4199 10.1423 16.5801 10.1423 16.7174 10.2086C16.8754 10.2849 16.9908 10.5263 17.2217 11.009L20.087 17M20.087 17L22 21M2 5H8M8 5H11.5M8 5V3M11.5 5H14M11.5 5C11.0039 7.95729 9.85259 10.6362 8.16555 12.8844M10 14C9.38747 13.7248 8.76265 13.3421 8.16555 12.8844M8.16555 12.8844C6.81302 11.8478 5.60276 10.4266 5 9M8.16555 12.8844C6.56086 15.0229 4.47143 16.7718 2 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -113,7 +113,6 @@
   function setExampleTTS() {
     const ttsConfig = {
       domain: [
-        'https://anki-eng.0w0.live/',
         'https://ms-ra-forwarder-for-ifreetime-five-steel.vercel.app/',
       ],
       params: { speed: -4 }
@@ -177,6 +176,40 @@
     btn.setAttribute('aria-pressed', String(isTranslated));
     btn.setAttribute('aria-label', 'Toggle translation');
     btn.title = isTranslated ? 'Click to hide translation' : 'Click to translate';
+  }
+
+  function initializeTranslateButton(btn) {
+    if (btn.dataset.translationInitialized === 'true') return;
+    btn.dataset.translationInitialized = 'true';
+    btn.addEventListener('click', translateContent);
+
+    let tapStart = null;
+    const isSameTap = touch => touch && tapStart &&
+      touch.identifier === tapStart.identifier &&
+      Math.hypot(touch.clientX - tapStart.clientX, touch.clientY - tapStart.clientY) <= 10;
+
+    btn.addEventListener('touchstart', event => {
+      tapStart = event.touches.length === 1 ? event.touches[0] : null;
+    }, { passive: true });
+
+    btn.addEventListener('touchmove', event => {
+      if (event.touches.length !== 1 || !isSameTap(event.touches[0])) {
+        tapStart = null;
+      }
+    }, { passive: true });
+
+    btn.addEventListener('touchcancel', () => {
+      tapStart = null;
+    }, { passive: true });
+
+    btn.addEventListener('touchend', event => {
+      const touch = event.changedTouches[0];
+      const isTap = event.touches.length === 0 && event.changedTouches.length === 1 && isSameTap(touch);
+      tapStart = null;
+      if (!isTap || !event.cancelable || !btn.contains(document.elementFromPoint(touch.clientX, touch.clientY))) return;
+      event.preventDefault();
+      btn.click();
+    }, { passive: false });
   }
 
   function translateContent() {
@@ -279,8 +312,7 @@
     const btn = document.getElementById('translateBtn');
     if (btn) {
       setTranslateButtonState(btn, !!document.querySelector('article.card .translation-container'));
-      btn.removeEventListener('click', translateContent);
-      btn.addEventListener('click', translateContent);
+      initializeTranslateButton(btn);
     }
   }
 
