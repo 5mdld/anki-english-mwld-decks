@@ -99,6 +99,8 @@
       {{/Example3}}
     </ul>
   </section>
+
+  <div class="translation-hint" hidden>Press L to show or hide translations.</div>
 </article>
 
   <script>
@@ -175,13 +177,26 @@
     if (!btn) return;
     btn.setAttribute('aria-pressed', String(isTranslated));
     btn.setAttribute('aria-label', 'Toggle translation');
-    btn.title = isTranslated ? 'Click to hide translation' : 'Click to translate';
+    btn.title = isTranslated ? 'Hide translation (L)' : 'Show translation (L)';
   }
 
   function initializeTranslateButton(btn) {
     if (btn.dataset.translationInitialized === 'true') return;
     btn.dataset.translationInitialized = 'true';
     btn.addEventListener('click', translateContent);
+
+    document.removeEventListener('keydown', window.__mwldTranslationKeydown);
+    window.__mwldTranslationKeydown = event => {
+      if (!btn.isConnected || (event.key !== 'l' && event.key !== 'L') ||
+          event.defaultPrevented || event.repeat || event.isComposing ||
+          event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.target instanceof Element &&
+          (event.target.isContentEditable || event.target.closest('input, textarea, select'))) return;
+      event.preventDefault();
+      event.stopPropagation();
+      btn.click();
+    };
+    document.addEventListener('keydown', window.__mwldTranslationKeydown);
 
     let tapStart = null;
     const isSameTap = touch => touch && tapStart &&
@@ -311,6 +326,9 @@
     autoPlayHeadwordAudio();
     const btn = document.getElementById('translateBtn');
     if (btn) {
+      const card = btn.closest('article.card');
+      card.querySelector('.translation-hint').hidden =
+        !Array.from(card.querySelectorAll('[data-translation]')).some(el => el.dataset.translation.trim());
       setTranslateButtonState(btn, !!document.querySelector('article.card .translation-container'));
       initializeTranslateButton(btn);
     }

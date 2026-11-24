@@ -338,6 +338,15 @@ article.card {
   margin-bottom: var(--spacing-base);
 }
 
+.translation-hint {
+  margin-top: var(--spacing-lg);
+  font-size: 0.75em;
+  font-style: italic;
+  color: var(--fg-subtle);
+  opacity: 0.75;
+  text-align: center;
+}
+
 .examples-list {
   list-style: none;
   padding: 0;
